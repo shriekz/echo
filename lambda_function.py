@@ -1,6 +1,8 @@
 # This attempts to be (more or less) the simplest possible hello world Alexa skill...
 
 from __future__ import print_function
+import weather
+import xl
 
 # We'll start with a couple of globals...
 CardTitlePrefix = "Greeting"
@@ -66,12 +68,54 @@ def handle_session_end_request():
         card_title, speech_output, None, should_end_session))
 
 def say_hello():
-    """
-    Return a suitable greeting...
-    """
+    #
+    #Return a suitable greeting...
+    print("say hello message is triggered...")
     card_title = "Greeting Message"
-    greeting_string = "Hello Abhinav and Vidhyuth. How are you doing?"
+    greeting_string = "Hello Abhinav and Vidhyuth. How are you doing?" + weather.getWeather()
     return build_response({}, build_speechlet_response(card_title, greeting_string, "Ask me to say hello...", True))
+
+def say_timetable(intent):
+
+    greeting_string = 'Hello sir....please ask with valid name'
+    card_title = "Time table Message"
+
+    print("say timetable message is triggered...")
+    
+    status = intent['slots']['childname']['resolutions']['resolutionsPerAuthority'][0]['status']['code']
+    if (status == "ER_SUCCESS_MATCH"):
+        kid_name = intent['slots']['childname']['resolutions']['resolutionsPerAuthority'][0]['values'][0]['value']['name']
+        time_table_string = xl.read_time_table(kid_name)
+        print(time_table_string)
+    else:
+        kid_name = intent['slots']['childname']['value']
+        time_table_string = "sorry...heard kid name as " + kid_name
+
+
+    # if 'value' in intent['slots']['childname']:
+    #     # read slot value.
+    #     kid_name = intent['slots']['childname']['value']
+    #     print ("Heard kid name as..." + kid_name)
+
+    #     if (kid_name == ""):
+    #         print("Kid name not known...")
+    #         return build_response({}, build_speechlet_response(card_title, greeting_string, "Ask genius to tell me exam schedule...", True))
+
+    #     if (kid_name in {"Abhinav","a B", "abhi"}): 
+    #         print("Kids name found...Abhi")
+    #         kid_name = "Abhinav"  
+    #     elif (kid_name in {"vidhyuth", "withyuth", "with youth"}):
+    #         print("Kids name found...Vidhyuth")
+    #         kid_name="Vidhyuth"
+    #     else:
+    #         print("Kid name not understood. Reverting to default response..")
+    #        return build_response({}, build_speechlet_response(card_title, "Sorry " + kid_name, "Ask genius to tell me exam schedule...", True))
+
+        
+
+    #   print(time_table_string)
+
+    return build_response({}, build_speechlet_response(card_title, time_table_string, "Ask genius to tell me exam schedule...", True))
 
 # --------------- Events ------------------
 
@@ -80,7 +124,6 @@ def on_session_started(session_started_request, session):
 
     print("on_session_started requestId=" + session_started_request['requestId']
           + ", sessionId=" + session['sessionId'])
-
 
 def on_launch(launch_request, session):
     """ Called when the user launches the skill without specifying what they want """
@@ -100,9 +143,14 @@ def on_intent(intent_request, session):
     intent = intent_request['intent']
     intent_name = intent_request['intent']['name']
 
+    print(intent_request)
+    print("INTENT:" + intent_name)
+
     # Dispatch to your skill's intent handlers
     if intent_name == "GreetingIntent":
         return say_hello()
+    if intent_name == "TimetableIntent":
+        return say_timetable(intent)
     elif intent_name == "AMAZON.HelpIntent":
         return get_welcome_response()
     elif intent_name == "AMAZON.CancelIntent" or intent_name == "AMAZON.StopIntent":
