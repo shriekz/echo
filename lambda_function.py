@@ -15,21 +15,25 @@ def build_speechlet_response(title, output, reprompt_text, should_end_session):
     Build a speechlet JSON representation of the title, output text, 
     reprompt text & end of session
     """
-
+    
+    plain_output = output
+    output = "<speak>" + output + "</speak>"
+    reprompt_text = "<speak>" + reprompt_text + "</speak>"
+    print(output)
     return {
         'outputSpeech': {
-            'type': 'PlainText',
-            'text': output
+            'type': 'SSML',
+            'ssml': output
         },
         'card': {
-            'type': 'Simple',
+            'type': 'Standard',
             'title': CardTitlePrefix + " - " + title,
-            'content': output
+            'content':  plain_output
         },
         'reprompt': {
             'outputSpeech': {
-                'type': 'PlainText',
-                'text': reprompt_text
+                'type': 'SSML',
+                'ssml': reprompt_text
             }
         },
         'shouldEndSession': should_end_session
@@ -79,10 +83,10 @@ def say_hello():
 def say_yokibu(intent):
 
     # scrape the response from yokibu and return.
+    card_title = "Message from Yokibu"
     print("Yokibu message is triggered...")
     yokibuMsg = yokibu.extractFromYokibu()
-    card_title = "Yokibu Message"
-	    
+    print(yokibuMsg)
     return build_response({}, build_speechlet_response(card_title, yokibuMsg, "Ask genius to get messages from yokibu", True))
 
 
@@ -136,20 +140,17 @@ def on_intent(intent_request, session):
     # Dispatch to your skill's intent handlers
     if intent_name == "GreetingIntent":
         return say_hello()
-
     elif intent_name == "TimetableIntent":
         return say_timetable(intent)
-
     elif intent_name == "YokibuIntent":
         return say_yokibu(intent)
-
     elif intent_name == "AMAZON.HelpIntent":
         return get_welcome_response()
-
     elif intent_name == "AMAZON.CancelIntent" or intent_name == "AMAZON.StopIntent":
         return handle_session_end_request()
     else:
-        raise ValueError("Invalid intent")
+        #raise ValueError("Invalid intent")
+        return say_hello()
 
 
 def on_session_ended(session_ended_request, session):
@@ -177,3 +178,4 @@ def lambda_handler(event, context):
         return on_intent(event['request'], event['session'])
     elif event['request']['type'] == "SessionEndedRequest":
         return on_session_ended(event['request'], event['session'])
+
