@@ -76,12 +76,13 @@ def say_hello():
     greeting_string = "Hello Abhinav and Vidhyuth. How are you doing?" + weather.getWeather()
     return build_response({}, build_speechlet_response(card_title, greeting_string, "Ask me to say hello...", True))
 
-def say_yokibu():
+def say_yokibu(intent):
 
     # scrape the response from yokibu and return.
     print("Yokibu message is triggered...")
     yokibuMsg = yokibu.extractFromYokibu()
-    
+    card_title = "Yokibu Message"
+	    
     return build_response({}, build_speechlet_response(card_title, yokibuMsg, "Ask genius to get messages from yokibu", True))
 
 
@@ -135,12 +136,16 @@ def on_intent(intent_request, session):
     # Dispatch to your skill's intent handlers
     if intent_name == "GreetingIntent":
         return say_hello()
-    if intent_name == "TimetableIntent":
+
+    elif intent_name == "TimetableIntent":
         return say_timetable(intent)
-    if intent_name == "YokibuIntent"
+
+    elif intent_name == "YokibuIntent":
         return say_yokibu(intent)
+
     elif intent_name == "AMAZON.HelpIntent":
         return get_welcome_response()
+
     elif intent_name == "AMAZON.CancelIntent" or intent_name == "AMAZON.StopIntent":
         return handle_session_end_request()
     else:
