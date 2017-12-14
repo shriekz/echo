@@ -135,9 +135,9 @@ def on_intent(intent_request, session):
     # Dispatch to your skill's intent handlers
     if intent_name == "GreetingIntent":
         return say_hello()
-    if intent_name == "TimetableIntent":
+    elif intent_name == "TimetableIntent":
         return say_timetable(intent)
-    if intent_name == "YokibuIntent"
+    elif intent_name == "YokibuIntent":
         return say_yokibu(intent)
     elif intent_name == "AMAZON.HelpIntent":
         return get_welcome_response()
