@@ -3,6 +3,7 @@
 from __future__ import print_function
 import weather
 import xl
+import yokibu
 
 # We'll start with a couple of globals...
 CardTitlePrefix = "Greeting"
@@ -75,6 +76,15 @@ def say_hello():
     greeting_string = "Hello Abhinav and Vidhyuth. How are you doing?" + weather.getWeather()
     return build_response({}, build_speechlet_response(card_title, greeting_string, "Ask me to say hello...", True))
 
+def say_yokibu():
+
+    # scrape the response from yokibu and return.
+    print("Yokibu message is triggered...")
+    yokibuMsg = yokibu.extractFromYokibu()
+    
+    return build_response({}, build_speechlet_response(card_title, yokibuMsg, "Ask genius to get messages from yokibu", True))
+
+
 def say_timetable(intent):
 
     greeting_string = 'Hello sir....please ask with valid name'
@@ -90,30 +100,6 @@ def say_timetable(intent):
     else:
         kid_name = intent['slots']['childname']['value']
         time_table_string = "sorry...heard kid name as " + kid_name
-
-
-    # if 'value' in intent['slots']['childname']:
-    #     # read slot value.
-    #     kid_name = intent['slots']['childname']['value']
-    #     print ("Heard kid name as..." + kid_name)
-
-    #     if (kid_name == ""):
-    #         print("Kid name not known...")
-    #         return build_response({}, build_speechlet_response(card_title, greeting_string, "Ask genius to tell me exam schedule...", True))
-
-    #     if (kid_name in {"Abhinav","a B", "abhi"}): 
-    #         print("Kids name found...Abhi")
-    #         kid_name = "Abhinav"  
-    #     elif (kid_name in {"vidhyuth", "withyuth", "with youth"}):
-    #         print("Kids name found...Vidhyuth")
-    #         kid_name="Vidhyuth"
-    #     else:
-    #         print("Kid name not understood. Reverting to default response..")
-    #        return build_response({}, build_speechlet_response(card_title, "Sorry " + kid_name, "Ask genius to tell me exam schedule...", True))
-
-        
-
-    #   print(time_table_string)
 
     return build_response({}, build_speechlet_response(card_title, time_table_string, "Ask genius to tell me exam schedule...", True))
 
@@ -151,6 +137,8 @@ def on_intent(intent_request, session):
         return say_hello()
     if intent_name == "TimetableIntent":
         return say_timetable(intent)
+    if intent_name == "YokibuIntent"
+        return say_yokibu(intent)
     elif intent_name == "AMAZON.HelpIntent":
         return get_welcome_response()
     elif intent_name == "AMAZON.CancelIntent" or intent_name == "AMAZON.StopIntent":

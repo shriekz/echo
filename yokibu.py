@@ -1,6 +1,8 @@
 import requests
 from lxml import html
 import json
+import datetime
+
 
 USERNAME = "ssrikanth77@gmail.com"
 PASSWORD = "kaju2007"
@@ -12,7 +14,14 @@ POST_URL = "https://www.yokibu.com/ajax-getposts"
 HOME_URL = "https://www.yokibu.com/home"
 USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.82 Safari/537.36'
 JSON_AUTHENTICATOR = ")]}',"
-def main():
+
+ABHINAV = "Abhinav"
+VIDHYUTH = "Vidhyuth"
+ABHI_CLASS = "V Std C (2017)"
+NO_MESSAGE_TODAY = "You have no messages for today"
+
+
+def extractFromYokibu():
 
 	# Create payload
 	payload = {
@@ -65,13 +74,47 @@ def main():
 	# string json authenticator put in to prevent hijacking.
 
 	json_results = json.loads((result.text).replace(JSON_AUTHENTICATOR,""))
-	print(json_results)
-	tree = html.fromstring(result.text)
-	# extract all message dates from this.
-	token = tree.xpath("//div[@class='post-date']/text()")
-	#print token[0]
+	#print(json_results)
+	
+	return getLatestMessage(json_results)
 
-	#print(bucket_names)
+
+def getLatestMessage(json_results):
+
+
+	# read through the json file to identify the first two messages and also the latest message for abhi and vidhyuth.
+	# for latest one, read the tag dmt
+	today = datetime.datetime.now().strftime("%Y-%m-%d")
+	msg_date = json_results['content']['posts'][0]['dmt']
+
+	if (today != msg_date.split(" ")[0]):
+		message = NO_MESSAGE_TODAY
+
+	abhiMsg = ""
+	sweetMsg = ""
+
+	for post in json_results['content']['posts']:
+
+		if (abhiMsg != "") and (sweetMsg != ""):break
+
+		msg_date = post['dmt'].split(" ")[0]
+		msg_child_class = post['pt'][0]
+		msg_details = post['pc']
+		
+		if (msg_child_class == ABHI_CLASS):
+			child_name = ABHINAV
+		else:
+			child_name = VIDHYUTH
+
+		if (child_name == ABHINAV):
+			abhiMsg = "Latest Message for %s, Message received on %s, %s" % (child_name, msg_date, msg_details)
+		elif (child_name == VIDHYUTH):
+			sweetMsg = "Latest Message for %s, Message received on %s, %s" % (child_name, msg_date, msg_details)
+
+	return("<p>"+ message+"</p> "+abhiMsg+sweetMsg)
+
+def main():
+	print(extractFromYokibu())
 
 if __name__ == '__main__':
     main()
