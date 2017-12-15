@@ -15,21 +15,23 @@ def build_speechlet_response(title, output, reprompt_text, should_end_session):
     Build a speechlet JSON representation of the title, output text, 
     reprompt text & end of session
     """
-
+    output = "<speak>" + output + "</speak>"
+    reprompt_text = "<speak>" + reprompt_text + "</speak>"
+    print(output)
     return {
         'outputSpeech': {
-            'type': 'PlainText',
-            'text': output
+            'type': 'SSML',
+            'ssml': output
         },
         'card': {
-            'type': 'Simple',
+            'type': 'Standard',
             'title': CardTitlePrefix + " - " + title,
             'content': output
         },
         'reprompt': {
             'outputSpeech': {
-                'type': 'PlainText',
-                'text': reprompt_text
+                'type': 'SSML',
+                'ssml': reprompt_text
             }
         },
         'shouldEndSession': should_end_session
@@ -52,17 +54,18 @@ def build_response(session_attributes, speechlet_response):
 def get_welcome_response():
     session_attributes = {}
     card_title = "Hello"
-    speech_output = "Welcome to the Hello World demonstration... Ask me to say hello."
+    speech_output = "Congratulations on using our kid raising companion. "
+    speech_output += "You can say the following. Greet the kids. Get time table schedule. Get messages from school."
     # If the user either does not reply to the welcome message or says something
     # that is not understood, they will be prompted again with this text.
-    reprompt_text = "I'm sorry - I didn't understand. You should ask me to say hello..."
+    reprompt_text = "I'm sorry - I didn't understand. Please try again"
     should_end_session = False
     return build_response(session_attributes, build_speechlet_response(card_title, speech_output, reprompt_text, should_end_session))
 
 
 def handle_session_end_request():
     card_title = "Session Ended"
-    speech_output = "Have a nice day! "
+    speech_output = "Genius wishes you a very nice day! "
     # Setting this to true ends the session and exits the skill.
     should_end_session = True
     return build_response({}, build_speechlet_response(
@@ -70,38 +73,40 @@ def handle_session_end_request():
 
 def say_hello():
     #
-    #Return a suitable greeting...
+    #Return a suitable greeting, along with weather.
     print("say hello message is triggered...")
     card_title = "Greeting Message"
     greeting_string = "Hello Abhinav and Vidhyuth. How are you doing?" + weather.getWeather()
-    return build_response({}, build_speechlet_response(card_title, greeting_string, "Ask me to say hello...", True))
+    return build_response({}, build_speechlet_response(card_title, greeting_string, "Ask me to greet the kids", True))
 
-def say_yokibu():
+def say_yokibu(intent):
 
     # scrape the response from yokibu and return.
+    card_title = "Message from Yokibu"
     print("Yokibu message is triggered...")
     yokibuMsg = yokibu.extractFromYokibu()
-    
+    print(yokibuMsg)
     return build_response({}, build_speechlet_response(card_title, yokibuMsg, "Ask genius to get messages from yokibu", True))
 
 
 def say_timetable(intent):
 
-    greeting_string = 'Hello sir....please ask with valid name'
     card_title = "Time table Message"
 
     print("say timetable message is triggered...")
-    
+    print(intent)
     status = intent['slots']['childname']['resolutions']['resolutionsPerAuthority'][0]['status']['code']
     if (status == "ER_SUCCESS_MATCH"):
         kid_name = intent['slots']['childname']['resolutions']['resolutionsPerAuthority'][0]['values'][0]['value']['name']
         time_table_string = xl.read_time_table(kid_name)
         print(time_table_string)
+        should_end_session = True
     else:
         kid_name = intent['slots']['childname']['value']
-        time_table_string = "sorry...heard kid name as " + kid_name
+        time_table_string = "sorry...heard kid name as " + kid_name + ", Please try again"
+        should_end_session = False
 
-    return build_response({}, build_speechlet_response(card_title, time_table_string, "Ask genius to tell me exam schedule...", True))
+    return build_response({}, build_speechlet_response(card_title, time_table_string, "Ask genius to get exam schedule for Abhi or Vidhyuth", should_end_session))
 
 # --------------- Events ------------------
 
@@ -145,6 +150,7 @@ def on_intent(intent_request, session):
         return handle_session_end_request()
     else:
         raise ValueError("Invalid intent")
+        #return say_hello()
 
 
 def on_session_ended(session_ended_request, session):
