@@ -93,7 +93,7 @@ def getLatestMessage(json_results):
 		message = json_results['content']['posts'][0]['pc']
 
 	abhiMsg = ""
-	sweetMsg = ""
+	sweetMsg = ""		
 
 	for post in json_results['content']['posts']:
 
