@@ -89,6 +89,8 @@ def getLatestMessage(json_results):
 
 	if (today != msg_date.split(" ")[0]):
 		message = NO_MESSAGE_TODAY
+	else:
+		message = json_results['content']['posts'][0]['pc']
 
 	abhiMsg = ""
 	sweetMsg = ""
