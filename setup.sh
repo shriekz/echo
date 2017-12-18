@@ -32,6 +32,5 @@ cd ..
 rm -r ./setup
 deactivate
 rm -r ./.env
-# changing dirs back to dir from before
-echo "Opening folder containg function package - 'package.zip'"
-open .
+
+echo "package creation completed."
