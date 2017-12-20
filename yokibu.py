@@ -88,9 +88,10 @@ def extractFromYokibu():
 def replaceStrings(s):
 
 	print(s)
+	str = s
 	for x in proscribed:
 		print("In there..."+ x)
-		str = s.replace(x,"")
+		str = str.replace(x,"")
 		print(str)
 	return str
 
