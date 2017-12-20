@@ -7,7 +7,6 @@ import datetime
 USERNAME = "ssrikanth77@gmail.com"
 PASSWORD = "kaju2007"
 
-#BASE_REFERRER = "https://www.yokibu.com"
 BASE_REFERRER = "https://www.yokibu.com/signin?ut=pt"
 LOGIN_URL="https://www.yokibu.com/ajax-signin"
 POST_URL = "https://www.yokibu.com/ajax-getposts"
@@ -19,6 +18,14 @@ ABHINAV = "Abhinav"
 VIDHYUTH = "Vidhyuth"
 ABHI_CLASS = "V Std C (2017)"
 NO_MESSAGE_TODAY = "You have no messages for today"
+
+
+proscribed = [
+	"<br>",
+	"<br/>"
+	"<italic>",
+	"<italic/>"
+]
 
 
 def extractFromYokibu():
@@ -78,6 +85,14 @@ def extractFromYokibu():
 	
 	return getLatestMessage(json_results)
 
+def replaceStrings(s):
+
+	print(s)
+	for x in proscribed:
+		print("In there..."+ x)
+		str = s.replace(x,"")
+		print(str)
+	return str
 
 def getLatestMessage(json_results):
 
@@ -113,7 +128,7 @@ def getLatestMessage(json_results):
 		elif (child_name == VIDHYUTH):
 			sweetMsg = "Latest Message for %s, Message received on %s, %s" % (child_name, msg_date, msg_details)
 
-	return("<p>"+ message+"</p> "+abhiMsg+sweetMsg)
+	return replaceStrings("<p>"+ message+"</p> "+abhiMsg+sweetMsg)
 
 def main():
 	print(extractFromYokibu())
