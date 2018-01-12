@@ -7,7 +7,6 @@ import datetime
 USERNAME = "ssrikanth77@gmail.com"
 PASSWORD = "kaju2007"
 
-#BASE_REFERRER = "https://www.yokibu.com"
 BASE_REFERRER = "https://www.yokibu.com/signin?ut=pt"
 LOGIN_URL="https://www.yokibu.com/ajax-signin"
 POST_URL = "https://www.yokibu.com/ajax-getposts"
@@ -18,7 +17,16 @@ JSON_AUTHENTICATOR = ")]}',"
 ABHINAV = "Abhinav"
 VIDHYUTH = "Vidhyuth"
 ABHI_CLASS = "V Std C (2017)"
+VIDHYUTH_CLASS = "I Std C (2017)"
 NO_MESSAGE_TODAY = "You have no messages for today"
+
+
+proscribed = [
+	"<br>",
+	"<br/>"
+	"<italic>",
+	"<italic/>"
+]
 
 
 def extractFromYokibu():
@@ -78,6 +86,15 @@ def extractFromYokibu():
 	
 	return getLatestMessage(json_results)
 
+def replaceStrings(s):
+
+	#print(s)
+	str = s
+	for x in proscribed:
+		#print("In there..."+ x)
+		str = str.replace(x,"")
+		#print(str)
+	return str
 
 def getLatestMessage(json_results):
 
@@ -93,27 +110,24 @@ def getLatestMessage(json_results):
 		message = json_results['content']['posts'][0]['pc']
 
 	abhiMsg = ""
-	sweetMsg = ""		
+	sweetMsg = ""	
+	abhiPresent = False
+	vidhyuthPresent = False	
 
 	for post in json_results['content']['posts']:
 
-		if (abhiMsg != "") and (sweetMsg != ""):break
+		if (abhiPresent) and (vidhyuthPresent): break
+		if (ABHI_CLASS in post['pt']): abhiPresent = True
+		if (VIDHYUTH_CLASS in post['pt']): vidhyuthPresent = True
 
 		msg_date = post['dmt'].split(" ")[0]
-		msg_child_class = post['pt'][0]
 		msg_details = post['pc']
-		
-		if (msg_child_class == ABHI_CLASS):
-			child_name = ABHINAV
-		else:
-			child_name = VIDHYUTH
+		if (abhiPresent):
+			abhiMsg = "Latest Message for %s, Message received on %s, %s" % (ABHINAV, msg_date, msg_details)
+		if (vidhyuthPresent):
+			sweetMsg = "Latest Message for %s, Message received on %s, %s" % (VIDHYUTH, msg_date, msg_details)
 
-		if (child_name == ABHINAV):
-			abhiMsg = "Latest Message for %s, Message received on %s, %s" % (child_name, msg_date, msg_details)
-		elif (child_name == VIDHYUTH):
-			sweetMsg = "Latest Message for %s, Message received on %s, %s" % (child_name, msg_date, msg_details)
-
-	return("<p>"+ message+"</p> "+abhiMsg+sweetMsg)
+	return replaceStrings("<p>"+ message+"</p> "+abhiMsg+sweetMsg)
 
 def main():
 	print(extractFromYokibu())
