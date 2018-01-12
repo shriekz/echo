@@ -17,6 +17,7 @@ JSON_AUTHENTICATOR = ")]}',"
 ABHINAV = "Abhinav"
 VIDHYUTH = "Vidhyuth"
 ABHI_CLASS = "V Std C (2017)"
+VIDHYUTH_CLASS = "I Std C (2017)"
 NO_MESSAGE_TODAY = "You have no messages for today"
 
 
@@ -87,12 +88,12 @@ def extractFromYokibu():
 
 def replaceStrings(s):
 
-	print(s)
+	#print(s)
 	str = s
 	for x in proscribed:
-		print("In there..."+ x)
+		#print("In there..."+ x)
 		str = str.replace(x,"")
-		print(str)
+		#print(str)
 	return str
 
 def getLatestMessage(json_results):
@@ -109,25 +110,22 @@ def getLatestMessage(json_results):
 		message = json_results['content']['posts'][0]['pc']
 
 	abhiMsg = ""
-	sweetMsg = ""		
+	sweetMsg = ""	
+	abhiPresent = False
+	vidhyuthPresent = False	
 
 	for post in json_results['content']['posts']:
 
-		if (abhiMsg != "") and (sweetMsg != ""):break
+		if (abhiPresent) and (vidhyuthPresent): break
+		if (ABHI_CLASS in post['pt']): abhiPresent = True
+		if (VIDHYUTH_CLASS in post['pt']): vidhyuthPresent = True
 
 		msg_date = post['dmt'].split(" ")[0]
-		msg_child_class = post['pt'][0]
 		msg_details = post['pc']
-		
-		if (msg_child_class == ABHI_CLASS):
-			child_name = ABHINAV
-		else:
-			child_name = VIDHYUTH
-
-		if (child_name == ABHINAV):
-			abhiMsg = "Latest Message for %s, Message received on %s, %s" % (child_name, msg_date, msg_details)
-		elif (child_name == VIDHYUTH):
-			sweetMsg = "Latest Message for %s, Message received on %s, %s" % (child_name, msg_date, msg_details)
+		if (abhiPresent):
+			abhiMsg = "Latest Message for %s, Message received on %s, %s" % (ABHINAV, msg_date, msg_details)
+		if (vidhyuthPresent):
+			sweetMsg = "Latest Message for %s, Message received on %s, %s" % (VIDHYUTH, msg_date, msg_details)
 
 	return replaceStrings("<p>"+ message+"</p> "+abhiMsg+sweetMsg)
 
