@@ -99,33 +99,47 @@ def replaceStrings(s):
 def getLatestMessage(json_results):
 
 
+	#print(json_results)
 	# read through the json file to identify the first two messages and also the latest message for abhi and vidhyuth.
 	# for latest one, read the tag dmt
 	today = datetime.datetime.now().strftime("%Y-%m-%d")
-	msg_date = json_results['content']['posts'][0]['dmt']
-
-	if (today != msg_date.split(" ")[0]):
-		message = NO_MESSAGE_TODAY
-	else:
-		message = json_results['content']['posts'][0]['pc']
 
 	abhiMsg = ""
 	sweetMsg = ""	
 	abhiPresent = False
 	vidhyuthPresent = False	
+	message = ""
 
 	for post in json_results['content']['posts']:
 
-		if (abhiPresent) and (vidhyuthPresent): break
-		if (ABHI_CLASS in post['pt']): abhiPresent = True
-		if (VIDHYUTH_CLASS in post['pt']): vidhyuthPresent = True
-
+		# Filter for messages from school alone, messages from parents are ignored.
+		if (post['pa']['type'] != "School"): continue
 		msg_date = post['dmt'].split(" ")[0]
+
+		# Get all messages that were posted by school today and concatenate them.
+		if ( today == msg_date):
+			if (message != ""):
+				message = "%s. Another message for today: %s " %(message, post['pc'])
+			else:
+				message = post['pc']
+
+		# If we have all messages for today and the latest for Abhi and Vidhyuth, get out here.
+		if (abhiPresent) and (vidhyuthPresent) and (today != msg_date): break
+
 		msg_details = post['pc']
-		if (abhiPresent):
+		# If Abhi's class is in the message and this is the latest one then get it.
+		if ((ABHI_CLASS in post['pt']) and (abhiPresent == False)):
 			abhiMsg = "Latest Message for %s, Message received on %s, %s" % (ABHINAV, msg_date, msg_details)
-		if (vidhyuthPresent):
+			abhiPresent = True;
+
+		# Same for vidhyuth
+		if ( (VIDHYUTH_CLASS in post['pt']) and (vidhyuthPresent == False)):
 			sweetMsg = "Latest Message for %s, Message received on %s, %s" % (VIDHYUTH, msg_date, msg_details)
+			vidhyuthPresent = True;
+		
+
+	if (message == ""): message = NO_MESSAGE_TODAY
+	else: message = "Messages received today, " + message
 
 	return replaceStrings("<p>"+ message+"</p> "+abhiMsg+sweetMsg)
 
