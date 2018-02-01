@@ -25,7 +25,9 @@ proscribed = [
 	"<br>",
 	"<br/>"
 	"<italic>",
-	"<italic/>"
+	"<italic/>",
+	"&",
+	"?"
 ]
 
 
